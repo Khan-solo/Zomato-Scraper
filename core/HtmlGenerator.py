@@ -35,12 +35,14 @@ class RestaurantScraper:
 
     def write_page(self):
         print("Writing the HTML page to a file")
-        with open("DineOutRestaurants.html", "w", encoding="utf-8") as f:
+        with open("docs/Restaurants.html", "w", encoding="utf-8") as f:
             f.write(self.driver.page_source)
+
     def run(self):
         self.get_page()
         self.write_page()
         self.driver.quit()
+        return "Html Stored in docs"
         pass
 
 if __name__ == "__main__":

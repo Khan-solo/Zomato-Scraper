@@ -3,14 +3,11 @@ Author: Mursil Khan
 """
 from bs4 import BeautifulSoup
 import pandas as pd
-import datetime
-import json
-import csv
 import uuid
 
-class Zomato:
-    def __init__(self):
-
+class ZomatoDineoutRestuarants:
+    def __init__(self, city):
+        self.city = city
         pass
 
     def scrape_rest_list(self, url, local=True):
@@ -36,37 +33,45 @@ class Zomato:
 
                 #Name-------------
                 name = restaurant.find('h4', class_='sc-1hp8d8a-0').text.strip()
-                print(name)
 
                 #Tags-------------
-                tags = restaurant.find('p', class_='iumJIm').text.strip()
-                print(tags)
+                try:
+                    tags = restaurant.find('p', class_='iumJIm').text.strip()
+                except:
+                    tags = ""
 
                 #Price-----------
-                price = restaurant.find('p', class_='fXNJYh').text.replace("₹", "").strip()
-                print(price)
+                try:
+                    price = restaurant.find('p', class_='fXNJYh').text.replace("₹", "").strip()
+                except:
+                    price = ""
 
                 #Location--------
-                location = restaurant.find('p', class_='iJapJD').text.strip().split(",")
+                try:
+                    location = restaurant.find('p', class_='iJapJD').text.strip().split(",")
                 # print(location)
-                city = location[-1].strip()
-                area = ",".join(location[:-1]).strip()
-                print(area)
-                print(city)
+                    city = location[-1].strip()
+                    area = ",".join(location[:-1]).strip()
+                except:
+                    area = ""
+                    city = self.city.title()
                 #Link-------------
                 link = restaurant.find('a', class_='sc-gleUXh')['href']
-                print(link)
+                if "www" not in link:
+                    link = "https://www.zomato.com/"+link
 
                 #Rating-----------
-                rating = restaurant.find('div', class_='cILgox').text.strip()
-                print(rating)
+                try:
+                    rating = restaurant.find('div', class_='cILgox').text.strip()
+                except:
+                    rating = "-"
                 # cols = ['id', 'Name', 'Tags', 'Price', 'Area', 'City', 'Link']
                 df.loc[index] = [str(uuid.uuid4()), name, tags, price, area, city, rating, link]
-                print("="*30)
-        return df
+        df.to_csv("data/RestaurantsList.csv", index=False)
+        return "Data Stored"
 
 if __name__=="__main__":
     Obj = Zomato()
     url = r"C:\Users\Mursil\Desktop\ZomatoProject\Dine-Out Restaurants in Lucknow - Zomato.html"
-    data = Obj.scrape_rest_list(url)
-    data.to_csv("Lucknow_Restaurants.csv", index=False)
+    msg = Obj.scrape_rest_list(url)
+    print(msg)
