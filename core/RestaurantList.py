@@ -58,7 +58,7 @@ class ZomatoDineoutRestuarants:
                 #Link-------------
                 link = restaurant.find('a', class_='sc-gleUXh')['href']
                 if "www" not in link:
-                    link = "https://www.zomato.com/"+link
+                    link = "https://www.zomato.com"+link
 
                 #Rating-----------
                 try:
