@@ -9,12 +9,22 @@ import datetime
 import uuid
 
 class DishScraper:
-    def __init__(self, url):
+    def __init__(self, url, rest_id):
         """
-        :param url: Url of the Restaurant to be scraped
+
+        :param url: Url of the Restaurant's dine-out page on zomato
+        :param rest_id: uuid of the restaurant
         """
         self.url = url
-        self.dish_data = pd.DataFrame(columns=['Dish', 'Price', 'Type', 'Details', 'id'])
+        self.rest_id = rest_id
+        try:
+            self.dish_data = pd.read_csv('data/Dish_Data.csv')
+        except Exception as E:
+            print(E)
+            print("Dish Data File Not Found! Creating one.")
+            self.dish_data = pd.DataFrame(columns=['Dish', 'Price', 'Type', 'Details', 'id', 'restaurant_id'])
+
+
     def clean_url(self):
         if "/info" in self.url:
             self.url = self.url.replace("/info", "/order")
@@ -52,19 +62,16 @@ class DishScraper:
                     deets = ",".join(deets.split(",")[:-1]).strip() + " , + more"
             except:
                 deets = ""
-            self.dish_data.loc[len(self.dish_data)] = [name, price, type, deets, str(uuid.uuid4())]
+            self.dish_data.loc[len(self.dish_data)] = [name, price, type, deets, str(uuid.uuid4()), str(self.rest_id)]
 
     def run(self):
         print("Running The FLow")
         self.scrape_page()
         self.scrape_dishes_list()
         print("Dish Data Collected")
-        self.dish_data = self.dish_data.drop_duplicates(subset=['Dish'])
-        self.dish_data.to_csv("Dish_Data.csv", index=False)
+        self.dish_data = self.dish_data.drop_duplicates(subset=['Dish', 'restaurant_id'], keep='last')
+        self.dish_data.to_csv("data/Dish_Data.csv", index=False)
         return "Successfully Scraped Dish Data"
-
-
-
 
 if __name__ =="__main__":
     df = pd.read_csv("Lucknow_Restaurants.csv")
