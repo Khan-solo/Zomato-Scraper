@@ -32,7 +32,12 @@ class ZomatoDineoutRestuarants:
                 index = len(df)
 
                 #Name-------------
-                name = restaurant.find('h4', class_='sc-1hp8d8a-0').text.strip()
+                try:
+                    name = restaurant.find('h4', class_='sc-1hp8d8a-0').text.strip()
+                except Exception as E:
+                    print(E)
+                    print(self.city)
+                    name = ""
 
                 #Tags-------------
                 try:
@@ -67,8 +72,15 @@ class ZomatoDineoutRestuarants:
                     rating = "-"
                 # cols = ['id', 'Name', 'Tags', 'Price', 'Area', 'City', 'Link']
                 df.loc[index] = [str(uuid.uuid4()), name, tags, price, area, city, rating, link]
-        df.to_csv("data/RestaurantsList.csv", index=False)
-        return "Data Stored"
+        try:
+            og = pd.read_csv("data/RestaurantsList.csv")
+            frames = [og, df]
+            og = pd.concat(frames, ignore_index=True)
+            og.to_csv("data/RestaurantsList.csv", index=False)
+        except Exception as E:
+            print("Restaurant List file not found! Creating one")
+            df.to_csv("data/RestaurantsList.csv", index=False)
+        return df
 
 if __name__=="__main__":
     Obj = Zomato()

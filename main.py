@@ -17,19 +17,22 @@ class Pipeline:
         GenHtmlMsg = RestaurantScraper(city=self.city).run()
         print(GenHtmlMsg)
         path = "docs/Restaurants.html" #Hardcoded since the Html will be saved by this name
-        ZomatoDineoutRestuarants(city=self.city).scrape_rest_list(url=path, local=True)
-        restaurant_df = pd.read_csv("data/RestaurantsList.csv")
-        for i,r in restaurant_df.head(5).iterrows():
+        restaurant_df = ZomatoDineoutRestuarants(city=self.city).scrape_rest_list(url=path, local=True)
+
+        for i,r in restaurant_df.iterrows():
             try:
                 url = r['Link']
-                rest_id = r['id']
+                rest_id = r['id'] # to be made static
                 Obj = DishScraper(url=url, rest_id=rest_id).run()
-                print(Obj)
+                # print(Obj)
             except Exception as E:
                 print(E)
                 print(r['Link'])
-            # break
+            print("="*30)
 
 if __name__ == "__main__":
-    Pipeline("Barabanki").run()
+    cities = ['barabanki','Lucknow', 'ncr']
+    for city in cities:
+        Pipeline(city).run()
+        print(f"Scraping Finished for {city}")
     print("Scraping Finished")
